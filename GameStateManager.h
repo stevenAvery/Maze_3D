@@ -4,21 +4,22 @@
 
 #include "GameState.h"
 #include <vector>
+#include <iostream>
 
 class GameStateManager {
 	private:
-		std::vector<GameState> states;
+		std::vector<GameState*> states;
 		GameState *currentState;
 
 	public:
 		GameStateManager();
-		void mainLoop(int value);
+
 		void addState(GameState *state);
 		void deleteState(GameState *state);
 		void setState(GameState *state);
-		void init();
+
 		void update();
-		void display();
+		void render();
 		void changeSize(int w, int h);
 		void keyboardFunc(unsigned char key, int x, int y);
 };
