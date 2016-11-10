@@ -21,7 +21,8 @@ class GameStateManager {
 		void update();
 		void render();
 		void changeSize(int w, int h);
-		void keyboardFunc(unsigned char key, int x, int y);
+		void keyboardDown(unsigned char key, int x, int y);
+		void keyboardUp(unsigned char key, int x, int y);
 };
 
 #endif

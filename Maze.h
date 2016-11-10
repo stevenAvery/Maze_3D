@@ -15,21 +15,18 @@ class Maze {
 		int gridSize;
 		Cell** grid;
 
-		void init(int width, int height);
 		void generateRecursive(int x, int y);
 
 	public:
-		Maze(int width, int height);
-		Maze(void);
-		~Maze(void);
-		int getWidth(void);
-		int getHeight(void);
+		~Maze();
+		int getWidth();
+		int getHeight();
 		bool isCellWall(int x, int y);
-		void generate(void);
-		std::vector<glm::vec4> getVertices(void);
-		std::vector<GLuint> getIndexes(void);
-		void print(void);
-		int getWallCount(void);
+		void generate(int width, int height);
+		std::vector<glm::vec4> getVertices(float cellSize);
+		std::vector<GLuint> getIndexes();
+		void print();
+		int getWallCount();
 };
 
 #endif

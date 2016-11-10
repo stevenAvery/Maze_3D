@@ -8,6 +8,13 @@ int triangles;
 
 Camera camera;
 Maze myMaze;
+Keyboard keys;
+
+#define CELL_SIZE 100.0f
+
+#define FOV 45.0f
+#define NEAR_CLIP 1.0f
+#define FAR_CLIP (100.0f*CELL_SIZE)
 
 void PlayState::enter() {
 	std::cout << "Enter Play State\n";
@@ -17,13 +24,12 @@ void PlayState::enter() {
 	int vs = buildShader(GL_VERTEX_SHADER,   (char *)"shaders/basic.vs");
 	int fs = buildShader(GL_FRAGMENT_SHADER, (char *)"shaders/basic.fs");
 	program = buildProgram(vs, fs, 0);
-	dumpProgram(program, (char *)"Template");
+	//dumpProgram(program, (char *)"Template"); // output information on the shader program
 
 	// init Maze
 	srand(time(NULL)); // seed random number generator
 
-	// initialize the maze
-	myMaze.generate();
+	myMaze.generate(37, 37);
 	myMaze.print();
 
 	// init OpenGL
@@ -35,7 +41,7 @@ void PlayState::enter() {
 	glBindVertexArray(objVAO);
 
 	// get the vertices and indices from myMaze
-	std::vector<glm::vec4> vecVertices = myMaze.getVertices();
+	std::vector<glm::vec4> vecVertices = myMaze.getVertices(CELL_SIZE);
 	std::vector<GLuint> vecIndexes = myMaze.getIndexes();
 
 	triangles = vecIndexes.size()/3;
@@ -43,16 +49,19 @@ void PlayState::enter() {
 	glGenBuffers(1, &vbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vecVertices.size()*sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, vecVertices.size()*sizeof(glm::vec4), &vecVertices[0]); // sizeof(vertices), vertice);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vecVertices.size()*sizeof(glm::vec4), &vecVertices[0]);
 
 	glGenBuffers(1, &ibuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vecIndexes.size()*sizeof(GLuint), &vecIndexes[0], GL_STATIC_DRAW);
 
-	//glUseProgram(program);
+	glUseProgram(program);
 	vPosition = glGetAttribLocation(program, "vPosition");
 	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(vPosition);
+
+	// set play position
+	player.setPos(glm::vec3(1.5*CELL_SIZE, 0.5f*CELL_SIZE, 0.5f*CELL_SIZE));
 }
 
 void PlayState::leave() {
@@ -60,7 +69,52 @@ void PlayState::leave() {
 }
 
 void PlayState::update() {
+	// User input for player
+	if(keys.isDown('a'))
+		player.moveTowards(-player.getRightXZ());
+	if(keys.isDown('d'))
+		player.moveTowards(player.getRightXZ());
+	if(keys.isDown('w'))
+		player.moveTowards(player.getForwardXZ());
+	if(keys.isDown('s'))
+		player.moveTowards(-player.getForwardXZ());
+	if(keys.isDown('j'))
+		player.rotateRight(-player.ROT_SPEED);
+	if(keys.isDown('l'))
+		player.rotateRight(player.ROT_SPEED);
+	if(keys.isDown('i'))
+		player.rotateTowards(player.getUp(), player.ROT_SPEED);
+	if(keys.isDown('k'))
+		player.rotateTowards(-player.getUp(), player.ROT_SPEED);
 
+	// player step
+	glm::vec3 pos0 = player.getPos();
+	player.step(1000/60);
+	glm::vec3 pos = player.getPos();
+	glm::vec3 vel = player.getVel();
+
+
+	// collision
+	// x-axis
+	float PLAYER_RAD = 5.0f;
+	if(myMaze.isCellWall(floor(pos0.z/CELL_SIZE), floor((pos.x + PLAYER_RAD)/CELL_SIZE)) ||
+	   myMaze.isCellWall(floor(pos0.z/CELL_SIZE), floor((pos.x - PLAYER_RAD)/CELL_SIZE))) {
+		vel.x = 0.0f;
+		pos.x = pos0.x;
+	}
+	if(myMaze.isCellWall(floor((pos.z + PLAYER_RAD)/CELL_SIZE), floor(pos0.x/CELL_SIZE)) ||
+	   myMaze.isCellWall(floor((pos.z - PLAYER_RAD)/CELL_SIZE), floor(pos0.x/CELL_SIZE))) {
+		vel.z = 0.0f;
+		pos.z = pos0.z;
+	}
+	player.setPos(pos);
+	player.setVel(vel);
+
+
+	// update camera to player position
+	camera.setPosition(player.getPos());
+	camera.setForward(player.getForward());
+	camera.setUp(player.getUp());
 }
 
 void PlayState::render() {
@@ -82,35 +136,19 @@ void PlayState::render() {
 }
 
 void PlayState::changeSize(int w, int h) {
-	// Prevent a divide by zero, when window is too short
-	if (h == 0) h = 1;
+	if (h == 0) h = 1; // Prevent a divide by zero, when window is too short
 
 	float ratio = 1.0 * w / h;
 	glViewport(0, 0, w, h);
-	projection = glm::perspective(45.0f, ratio, 0.1f, 1000.0f);
+	projection = glm::perspective(FOV, ratio, NEAR_CLIP, FAR_CLIP);
 }
 
-void PlayState::keyboardFunc(unsigned char key, int x, int y) {
+void PlayState::keyboardDown(unsigned char key, int x, int y) {
+	// Exit on Esc
 	if(key == 27)
 		glutLeaveMainLoop();
-	if(key == 'a')
-		camera.move(Camera::LEFT, 0.5f);
-	if(key == 'd')
-		camera.move(Camera::RIGHT, 0.5f);
-	if(key == 'w')
-		camera.move(Camera::FORWARD, 0.5f);
-	if(key == 's')
-		camera.move(Camera::BACKWARD, 0.5f);
-	if(key == 'e')
-		camera.move(Camera::UP, 0.5f);
-	if(key == 'q')
-		camera.move(Camera::DOWN, 0.5f);
-	if(key == 'j')
-		camera.rotateTowards(Camera::LEFT, 0.1f);
-	if(key == 'l')
-		camera.rotateTowards(Camera::RIGHT, 0.1f);
-	if(key == 'i')
-		camera.rotateTowards(Camera::UP, 0.1f);
-	if(key == 'k')
-		camera.rotateTowards(Camera::DOWN, 0.1f);
+}
+
+void PlayState::keyboardUp(unsigned char key, int x, int y) {
+
 }

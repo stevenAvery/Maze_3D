@@ -14,9 +14,11 @@ class Camera {
 	public:
 		enum Dir {UP, DOWN, LEFT, RIGHT, FORWARD, BACKWARD};
 
-		Camera(void);
-		glm::mat4 render(void);
+		Camera();
+		glm::mat4 render();
 		void setPosition(glm::vec3 pos);
+		void setForward(glm::vec3 forward);
+		void setUp(glm::vec3 up);
 		void move(glm::vec3 dir);
 		void move(Dir dir, float distance);
 

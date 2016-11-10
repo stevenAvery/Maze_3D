@@ -13,18 +13,24 @@
 #include <iostream> // cout
 #include <stdlib.h> // rand, srand
 #include <time.h>   // time
+#include <math.h>   // floor
+#include "Player.h"
 #include "Shaders.h"
 #include "Camera.h"
 #include "Maze.h"
+#include "Keyboard.h"
 
 class PlayState: public GameState {
+	private:
+		Player player;
 	public:
 		void enter();
 		void leave();
 		void update();
 		void render();
 		void changeSize(int w, int h);
-		void keyboardFunc(unsigned char key, int x, int y);
+		void keyboardDown(unsigned char key, int x, int y);
+		void keyboardUp(unsigned char key, int x, int y);
 };
 
 #endif

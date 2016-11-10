@@ -2,45 +2,17 @@
 #include "Maze.h"
 #include <iostream>
 
-//#define PRINT_FREE printf("\033[40;1m  \033[0m")
-//#define PRINT_WALL printf("\033[42;1m##\033[0m")
-
-Maze::Maze(int width, int height) {
-	// TODO add error for even maze size
-	init(width, height);
-}
-
-Maze::Maze(void) {
-	init(37, 37);
-}
-
-Maze::~Maze(void) {
+Maze::~Maze() {
 	for(int i = 0; i < width; i++)
 		delete[] grid[i];
 	delete[] grid;
 }
 
-void Maze::init(int width, int height) {
-	this->width = width;
-	this->height = height;
-	gridSize = width*height;
-
-	// create the grid
-	grid = new Cell*[width];
-	for(int i = 0; i < width; ++i)
-		grid[i] = new Cell[height];
-
-	// initialize the grid
-	for(int i = 0; i < width; i++)
-		for(int j = 0; j < height; j++)
-			grid[i][j] = WALL;
-}
-
-int Maze::getWidth(void) {
+int Maze::getWidth() {
 	return width;
 }
 
-int Maze::getHeight(void) {
+int Maze::getHeight() {
 	return height;
 }
 
@@ -74,7 +46,21 @@ void Maze::generateRecursive(int x, int y) {
 	}
 }
 
-void Maze::generate() {
+void Maze::generate(int width, int height) {
+	this->width = width;
+	this->height = height;
+	gridSize = width*height;
+
+	// create the grid
+	grid = new Cell*[width];
+	for(int i = 0; i < width; ++i)
+		grid[i] = new Cell[height];
+
+	// initialize the grid
+	for(int i = 0; i < width; i++)
+		for(int j = 0; j < height; j++)
+			grid[i][j] = WALL;
+
 	generateRecursive(width-2, height-2);
 
 	// remove start, and finish blocks
@@ -82,22 +68,22 @@ void Maze::generate() {
 	grid[0][1] = START;
 }
 
-std::vector<glm::vec4> Maze::getVertices(void) {
+std::vector<glm::vec4> Maze::getVertices(float cellSize) {
 	std::vector<glm::vec4> vertices;
 	int gridSizeVert = (width+1)*(height+1);
 	vertices.resize(gridSizeVert*2); // each point top and bottom
 
 	for(int i = 0; i < width+1; ++i) {
 		for(int j = 0; j < height+1; ++j) {
-			vertices[i*(width+1) + j] = glm::vec4((float)i, 0.0f, (float)j, 1.0f);
-			vertices[gridSizeVert + i*(width+1) + j] = glm::vec4((float)i, 1.0f, (float)j, 1.0f);
+			vertices[i*(width+1) + j] = glm::vec4((float)i*cellSize, 0.0f, (float)j*cellSize, 1.0f);
+			vertices[gridSizeVert + i*(width+1) + j] = glm::vec4((float)i*cellSize, 1.0f*cellSize, (float)j*cellSize, 1.0f);
 		}
 	}
 
 	return vertices;
 }
 
-std::vector<GLuint> Maze::getIndexes(void) {
+std::vector<GLuint> Maze::getIndexes() {
 	std::vector<GLuint> indices;
 	int gridSizeVert = (width+1)*(height+1);
 
@@ -153,9 +139,9 @@ std::vector<GLuint> Maze::getIndexes(void) {
 
 
 // output the maze grid to the console
-void Maze::print(void) {
-	for(int j = 0; j < height; j++) {
-		for(int i = 0; i < width; i++) {
+void Maze::print() {
+	for(int i = 0; i < width; i++) {
+		for(int j = 0; j < height; j++) {
 			switch(grid[i][j]) {
 				case FREE:
 					printf("  ");
@@ -176,7 +162,7 @@ void Maze::print(void) {
 }
 
 // return the total number of walls in the maze grid
-int Maze::getWallCount(void) {
+int Maze::getWallCount() {
 	int wallCount = 0;
 	for(int i = 0; i < width; i++)
 		for(int j = 0; j < height; j++)

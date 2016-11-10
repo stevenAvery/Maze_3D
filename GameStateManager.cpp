@@ -37,6 +37,10 @@ void GameStateManager::changeSize(int w, int h) {
 	currentState->changeSize(w, h);
 }
 
-void GameStateManager::keyboardFunc(unsigned char key, int x, int y) {
-	currentState->keyboardFunc(key, x, y);
+void GameStateManager::keyboardDown(unsigned char key, int x, int y) {
+	currentState->keyboardDown(key, x, y);
+}
+
+void GameStateManager::keyboardUp(unsigned char key, int x, int y) {
+	currentState->keyboardUp(key, x, y);
 }

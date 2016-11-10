@@ -6,19 +6,27 @@
 
 #define PI 3.14159265f
 
-Camera::Camera(void) {
+Camera::Camera() {
 	pos = glm::vec3(1.5f, 0.5f, 0.5f);
 	forward = glm::vec3(0.0f, 0.0f, 1.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	right = glm::normalize(glm::cross(forward, up));
 }
 
-glm::mat4 Camera::render(void) {
+glm::mat4 Camera::render() {
 	return glm::lookAt(pos, pos+forward, up);
 }
 
 void Camera::setPosition(glm::vec3 pos) {
 	this->pos = pos;
+}
+
+void Camera::setForward(glm::vec3 forward) {
+	this->forward = forward;
+}
+
+void Camera::setUp(glm::vec3 up) {
+	this->up = up;
 }
 
 void Camera::move(glm::vec3 dir) {
