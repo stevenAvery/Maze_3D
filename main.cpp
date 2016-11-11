@@ -16,12 +16,14 @@
 #include "GameStateManager.h"
 #include "PlayState.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 
 #define MAX_FPS 60
 
 GameStateManager stateManager;
 PlayState playState;
 Keyboard keyboard;
+Mouse mouse;
 
 void init() {
 	stateManager.setState(&playState);
@@ -55,6 +57,17 @@ void keyboardUp(unsigned char key, int x, int y) {
 	stateManager.keyboardUp(key, x, y);
 }
 
+void mouseMove(int x, int y) {
+	mouse.mouseMove(x, y);
+	stateManager.mouseMove(x, y);
+}
+
+void mousePress(int button, int state, int x, int y) {
+	mouse.mousePress(button, state, x, y);
+	mouseMove(x, y);
+	stateManager.mousePress(button, state, x, y);
+}
+
 int main(int argc, char **argv) {
 	stateManager.addState(&playState);
 
@@ -75,6 +88,9 @@ int main(int argc, char **argv) {
 	glutReshapeFunc(changeSize);
 	glutKeyboardFunc(keyboardDown);
 	glutKeyboardUpFunc(keyboardUp);
+	glutMouseFunc(mousePress);
+	glutPassiveMotionFunc(mouseMove);
+
 
 	init();
 	glutMainLoop();

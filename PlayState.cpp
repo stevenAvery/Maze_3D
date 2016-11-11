@@ -16,10 +16,16 @@ Keyboard keys;
 #define NEAR_CLIP 1.0f
 #define FAR_CLIP (100.0f*CELL_SIZE)
 
+#define SENSITIVITY 0.9f
+
+int width = 0;
+int height = 0;
+
 void PlayState::enter() {
 	std::cout << "Enter Play State\n";
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glutSetCursor(GLUT_CURSOR_NONE);
 
 	int vs = buildShader(GL_VERTEX_SHADER,   (char *)"shaders/basic.vs");
 	int fs = buildShader(GL_FRAGMENT_SHADER, (char *)"shaders/basic.fs");
@@ -69,6 +75,18 @@ void PlayState::leave() {
 }
 
 void PlayState::update() {
+	// update mouse
+	int deltaMovex = mouse.getx() - width/2;
+	float deltaMovey = mouse.gety() - height/2;
+	float mouseMoveRatiox = (float)deltaMovex/width;
+	float mouseMoveRatioy = (float)deltaMovey/height;
+
+	player.rotateRight(mouseMoveRatiox*SENSITIVITY);
+	player.rotateUp(-mouseMoveRatioy*SENSITIVITY);
+
+	mouse.warp(width/2, height/2);
+
+
 	// User input for player
 	if(keys.isDown('a'))
 		player.moveTowards(-player.getRightXZ());
@@ -83,9 +101,9 @@ void PlayState::update() {
 	if(keys.isDown('l'))
 		player.rotateRight(player.ROT_SPEED);
 	if(keys.isDown('i'))
-		player.rotateTowards(player.getUp(), player.ROT_SPEED);
+		player.rotateUp(player.ROT_SPEED);
 	if(keys.isDown('k'))
-		player.rotateTowards(-player.getUp(), player.ROT_SPEED);
+		player.rotateUp(-player.ROT_SPEED);
 
 	// player step
 	glm::vec3 pos0 = player.getPos();
@@ -138,6 +156,9 @@ void PlayState::render() {
 void PlayState::changeSize(int w, int h) {
 	if (h == 0) h = 1; // Prevent a divide by zero, when window is too short
 
+	width = w;
+	height = h;
+
 	float ratio = 1.0 * w / h;
 	glViewport(0, 0, w, h);
 	projection = glm::perspective(FOV, ratio, NEAR_CLIP, FAR_CLIP);
@@ -150,5 +171,13 @@ void PlayState::keyboardDown(unsigned char key, int x, int y) {
 }
 
 void PlayState::keyboardUp(unsigned char key, int x, int y) {
+
+}
+
+void PlayState::mousePress(int button, int state, int x, int y) {
+
+}
+
+void PlayState::mouseMove(int x, int y) {
 
 }

@@ -11,6 +11,8 @@ class GameState {
 		virtual void changeSize(int w, int h) = 0;
 		virtual void keyboardDown(unsigned char key, int x, int y) = 0;
 		virtual void keyboardUp(unsigned char key, int x, int y) = 0;
+		virtual void mousePress(int button, int state, int x, int y) = 0;
+		virtual void mouseMove(int x, int y) = 0;
 };
 
 #endif

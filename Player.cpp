@@ -82,6 +82,10 @@ void Player::rotateRight(float angle) {
 		-sin(angle)*right.x + cos(angle)*right.z);
 }
 
+void Player::rotateUp(float angle) {
+	rotateTowards(up, angle);
+}
+
 void Player::moveTowards(glm::vec3 dir) {
 	desiredVel = MAX_VEL;
 
@@ -90,6 +94,7 @@ void Player::moveTowards(glm::vec3 dir) {
 	else
 		desiredAngle = glm::normalize(dir) + glm::normalize(desiredAngle);
 }
+
 
 void Player::step(float dt) {
 	float dtSeconds = dt/1000.0f;

@@ -4,7 +4,6 @@
 
 class Keyboard {
 	public:
-		void initKeys();
 		void setKeyDown(unsigned char key);
 		void setKeyUp(unsigned char key);
 		bool isDown(unsigned char key);

@@ -44,3 +44,11 @@ void GameStateManager::keyboardDown(unsigned char key, int x, int y) {
 void GameStateManager::keyboardUp(unsigned char key, int x, int y) {
 	currentState->keyboardUp(key, x, y);
 }
+
+void GameStateManager::mousePress(int button, int state, int x, int y) {
+	currentState->mousePress(button, state, x, y);
+}
+
+void GameStateManager::mouseMove(int x, int y) {
+	currentState->mouseMove(x, y);
+}

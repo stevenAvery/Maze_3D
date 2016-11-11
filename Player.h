@@ -35,6 +35,8 @@ class Player {
 		glm::vec3 getRightXZ();
 		void rotateTowards(glm::vec3 v, float angle);
 		void rotateRight(float angle);
+		void rotateUp(float angle);
+
 
 		void moveTowards(glm::vec3 dir);
 		void step(float dt);
